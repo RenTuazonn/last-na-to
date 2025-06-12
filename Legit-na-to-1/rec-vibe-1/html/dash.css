@@ -1,0 +1,482 @@
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+.main-container {
+  display: flex;
+  align-items: center; /* Vertically center children */
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 24px;
+}
+
+.welcome-text {
+  flex: 1 1 280px;
+  font-size: 1.2rem;
+  color: #333;
+  min-width: 260px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertically center text */
+  align-items: flex-end;   /* Align text to the right, next to the box */
+  height: 100%;
+  padding-right: 40px;
+}
+
+.welcome-text h1 {
+  font-size: 2.5rem;
+  color: #039be5;
+  text-align: right;
+}
+
+.welcome-text p {
+  line-height: 1.6;
+  color: #666;
+  text-align: right;
+}
+
+.right-content {
+  flex: 2 1 480px;
+  width: 60%;
+  min-width: 320px;
+  max-width: 800px;
+}
+
+.card {
+  background-color: #fff;
+  padding: 24px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  width: 100%;
+  min-width: 260px;
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  color: #039be5;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background: #fff;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.back-button {
+  background-color: #039be5;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #0288d1;
+}
+
+#toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #e74c3c;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 9999;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1100px) {
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px;
+  }
+  .welcome-text {
+    align-items: center;
+    padding-right: 0;
+    margin-bottom: 24px;
+    max-width: 100%;
+    text-align: center;
+  }
+  .welcome-text h1,
+  .welcome-text p {
+    text-align: center;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .card {
+    padding: 14px 4px;
+    margin-bottom: 14px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-header {
+    margin-top: 12px;
+    margin-bottom: 18px;
+  }
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .card {
+    padding: 16px 8px;
+    margin-bottom: 16px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px;
+    gap: 0;
+  }
+  .welcome-text {
+    margin-bottom: 18px;
+    font-size: 1rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .card {
+    padding: 14px 4px;
+    margin-bottom: 14px;
+    min-width: 0;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-header {
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+  .dashboard-header h1 {
+    font-size: 1.2rem;
+  }
+  .dashboard-header p {
+    font-size: 0.95rem;
+  }
+  .main-container {
+    padding: 4px;
+    gap: 0;
+  }
+  .card {
+    padding: 8px 2px;
+    font-size: 0.97rem;
+    margin-bottom: 10px;
+  }
+  .filter-input {
+    font-size: 0.97rem;
+    padding: 8px 8px;
+  }
+  .back-button {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-container {
+    padding: 2px;
+  }
+  .card {
+    padding: 8px 1px;
+    font-size: 0.95rem;
+  }
+  .welcome-text h1 {
+    font-size: 1.5rem;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+  }
+  .filter-input {
+    font-size: 0.95rem;
+    padding: 8px 8px;
+  }
+  .back-button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2d6cdf;
+  padding: 1rem 2rem;
+  color: white;
+  border-radius: 0.5rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Profile */
+.profile-menu {
+  position: relative;
+}
+
+.profile-icon {
+  background: #eee;
+  color: #2d6cdf;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 24px;
+  cursor: pointer;
+}
+.profile-menu .dropdown {
+  display: none;
+  position: absolute;
+  background-color: white;
+  list-style: none;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  right: 0;
+  top: 40px;
+  z-index: 1000;
+}
+
+.profile-menu .dropdown.show {
+  display: block;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown li {
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown li:last-child {
+  border-bottom: none;
+}
+
+.dropdown li a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown li a:hover {
+  background-color: #f5f5f5;
+}
+
+.dashboard-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 32px;
+  margin-top: 24px;
+}
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #039be5;
+  margin-bottom: 0.5rem;
+}
+.dashboard-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+@media (max-width: 900px) {
+  .dashboard-header {
+    margin-top: 12px;
+    margin-bottom: 18px;
+  }
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .card {
+    padding: 16px 8px;
+    margin-bottom: 16px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px;
+    gap: 0;
+  }
+  .welcome-text {
+    margin-bottom: 18px;
+    font-size: 1rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .card {
+    padding: 14px 4px;
+    margin-bottom: 14px;
+    min-width: 0;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-header {
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+  .dashboard-header h1 {
+    font-size: 1.2rem;
+  }
+  .dashboard-header p {
+    font-size: 0.95rem;
+  }
+  .main-container {
+    padding: 4px;
+    gap: 0;
+  }
+  .card {
+    padding: 8px 2px;
+    font-size: 0.97rem;
+    margin-bottom: 10px;
+  }
+  .filter-input {
+    font-size: 0.97rem;
+    padding: 8px 8px;
+  }
+  .back-button {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+  .right-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-container {
+    padding: 2px;
+  }
+  .card {
+    padding: 8px 1px;
+    font-size: 0.95rem;
+  }
+  .welcome-text h1 {
+    font-size: 1.5rem;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+  }
+  .filter-input {
+    font-size: 0.95rem;
+    padding: 8px 8px;
+  }
+  .back-button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}

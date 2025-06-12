@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CampusConnect</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left Section: Welcome Message -->
+    <div class="welcome-text">
+      <h1>🎓 Admin Dashboard</h1>
+      <p>Welcome to the Admin Dashboard! Manage your events and registered users with ease.</p>
+    </div>
+
+    <!-- Right Section: Back Button and Dashboard Content -->
+    <div class="right-content">
+      <!-- Back Button -->
+      <button class="back-button" onclick="goBack()">🔙 Back</button>
+
+      <!-- Events Section -->
+      <div class="card" id="eventsSection">
+        <h2>📅 Created Events</h2>
+        <input class="filter-input" type="text" id="eventSearch" placeholder="🔍 Search events..." />
+        <div style="margin: 10px 0;">
+          <label for="eventDateFilter">Event Date</label>
+          <input type="date" id="eventDateFilter" class="filter-input" />
+          
+          <label for="categoryFilter">Event Category</label>
+          <select id="categoryFilter" class="filter-input">
+            <option value="">All Categories</option>
+            <option value="Esports">Esports</option>
+            <option value="Org">Org</option>
+            <option value="Social">Social</option>
+            <option value="Sports">Sports</option>
+            <option value="Academic">Academic</option>
+          </select>
+        </div>
+        <div id="eventsList"></div>
+      </div>
+
+      <!-- Users Section -->
+      <div class="card" id="usersSection">
+        <h2>👥 Registered Users</h2>
+        <input class="filter-input" type="text" id="userSearch" placeholder="🔍 Search users..." />
+        <div id="usersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+    // Firebase logic...
+  const firebaseConfig = {
+            apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+            authDomain: "first-proj-a5fff.firebaseapp.com",
+            projectId: "first-proj-a5fff",
+            storageBucket: "first-proj-a5fff.appspot.com",
+            messagingSenderId: "902560724938",
+            appId: "1:902560724938:web:2956090fc8afb5ce888133",
+            measurementId: "G-0VNSBVGRK7",
+            databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com"
+        };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const firestore = getFirestore(app);
+  const database = getDatabase(app);
+
+    // --- Fetch and display events from Firestore ---
+    async function fetchFirestoreEvents(filter = {}) {
+      const eventsList = document.getElementById('eventsList');
+      eventsList.innerHTML = '';
+      try {
+        let q = collection(firestore, "events");
+        // Filtering logic
+        let constraints = [];
+        if (filter.category) {
+          constraints.push(where("category", "==", filter.category));
+        }
+        if (filter.date) {
+          constraints.push(where("date", "==", filter.date));
+        }
+        let queryRef = constraints.length > 0 ? query(q, ...constraints) : q;
+        const querySnapshot = await getDocs(queryRef);
+        let found = false;
+        querySnapshot.forEach((doc) => {
+          found = true;
+          const event = doc.data();
+          const eventElement = document.createElement('div');
+          eventElement.classList.add('event');
+          eventElement.innerHTML = `
+            <h3>${event.name || ''}</h3>
+            <p>${event.description || ''}</p>
+            <p><strong>Category:</strong> ${event.category || ''}</p>
+            <p><strong>Date:</strong> ${event.date || ''}</p>
+            <p><strong>Time:</strong> ${event.time || ''}</p>
+            <p><strong>Location:</strong> ${event.location || ''}</p>
+          `;
+          eventsList.appendChild(eventElement);
+        });
+        if (!found) {
+          eventsList.innerHTML = '<p>No events found.</p>';
+        }
+      } catch (error) {
+        eventsList.innerHTML = `<p>Error loading events: ${error.message}</p>`;
+      }
+    }
+    fetchFirestoreEvents();
+
+    // Event search and filter
+    document.getElementById('eventSearch').addEventListener('input', async function() {
+      const search = this.value.toLowerCase();
+      const eventsList = document.getElementById('eventsList');
+      // Refetch all events and filter client-side
+      const querySnapshot = await getDocs(collection(firestore, "events"));
+      eventsList.innerHTML = '';
+      let found = false;
+      querySnapshot.forEach((doc) => {
+        const event = doc.data();
+        if (
+          (event.name && event.name.toLowerCase().includes(search)) ||
+          (event.description && event.description.toLowerCase().includes(search))
+        ) {
+          found = true;
+          const eventElement = document.createElement('div');
+          eventElement.classList.add('event');
+          eventElement.innerHTML = `
+            <h3>${event.name || ''}</h3>
+            <p>${event.description || ''}</p>
+            <p><strong>Category:</strong> ${event.category || ''}</p>
+            <p><strong>Date:</strong> ${event.date || ''}</p>
+            <p><strong>Time:</strong> ${event.time || ''}</p>
+            <p><strong>Location:</strong> ${event.location || ''}</p>
+          `;
+          eventsList.appendChild(eventElement);
+        }
+      });
+      if (!found) {
+        eventsList.innerHTML = '<p>No events found.</p>';
+      }
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+      fetchFirestoreEvents({
+        category: this.value || undefined,
+        date: document.getElementById('eventDateFilter').value || undefined
+      });
+    });
+
+    document.getElementById('eventDateFilter').addEventListener('change', function() {
+      fetchFirestoreEvents({
+        category: document.getElementById('categoryFilter').value || undefined,
+        date: this.value || undefined
+      });
+    });
+
+    // --- Users section remains unchanged ---
+    const usersRef = ref(database, 'users');
+    onValue(usersRef, (snapshot) => {
+      const users = snapshot.val();
+      const usersList = document.getElementById('usersList');
+      usersList.innerHTML = '';
+      for (const userId in users) {
+        const user = users[userId];
+        const userElement = document.createElement('div');
+        userElement.classList.add('user');
+        userElement.innerHTML = `
+          <h3>${user.name}</h3>
+          <p><strong>Username:</strong> ${user.username}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+        `;
+        usersList.appendChild(userElement);
+      }
+    });
+  </script>
+</body>
+</html>

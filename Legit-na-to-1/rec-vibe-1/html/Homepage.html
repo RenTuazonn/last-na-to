@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUP Personalized Event Recommendations</title>
+    <link rel="stylesheet" href="C:\Users\Rhodora\reco-vibe\css\homepage.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button onclick="showSection('profile')">👤 My Profile</button>
+            <button onclick="showSection('events')">📅 Events</button>
+            <button onclick="showSection('notifications')">🔔 Notifications</button>
+            <button onclick="showSection('settings')">⚙️ Settings</button>
+            <button class="logout-button" onclick="logout()">🚪 Log Out</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>Welcome, User!</h1>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search Events" onkeyup="searchEvents()">
+                <button onclick="searchEvents()">Search</button>
+            </div>
+
+            <!-- Content Sections -->
+            <section id="profile" class="content-section">
+                <h2>👤 My Profile</h2>
+                <p>Your profile details will go here.</p>
+            </section>
+
+            <section id="events" class="content-section active">
+                <h2>🎉 Recommended Events for You:</h2>
+                <ul id="event-list">
+                    <!-- Events will be dynamically loaded here -->
+                </ul>
+            </section>
+
+            <section id="notifications" class="content-section">
+                <h2>🔔 Notifications</h2>
+                <ul id="notif-list">
+                    <!-- Notifications will be dynamically loaded here -->
+                </ul>
+            </section>
+
+            <section id="settings" class="content-section">
+                <h2>⚙️ Settings</h2>
+                <p>Settings options go here.</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="C:\Users\Rhodora\rec-vibe\js file\homepage.js"></script>
+</body>
+</html>

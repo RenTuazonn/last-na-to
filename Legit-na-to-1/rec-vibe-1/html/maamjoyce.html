@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firestore Data Display</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="maamjoyce.css">
+
+<body>
+    <div class="header-container">
+        <div class="header-title">RecVibe Admin</div>
+        <div class="header-icons">
+            <div class="dropdown" id="notifDropdown">
+                <button class="icon-btn" id="notifBtn">&#128276;</button>
+                <div class="dropdown-content" id="notifMenu">
+                    <p>No new notifications</p>
+                </div>
+            </div>
+            <div class="dropdown" id="profileDropdown">
+                <button class="icon-btn" id="profileBtn">&#128100;</button>
+                <div class="dropdown-content" id="profileMenu">
+                    <a href="#">Profile</a>
+                    <a href="#">Settings</a>
+                    <a href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="approval-container">
+        <h1>Created Events</h1>
+        <div id="data-list"></div>
+    </div>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+            authDomain: "first-proj-a5fff.firebaseapp.com",
+            projectId: "first-proj-a5fff",
+            storageBucket: "first-proj-a5fff.appspot.com",
+            messagingSenderId: "902560724938",
+            appId: "1:902560724938:web:2956090fc8afb5ce888133",
+            measurementId: "G-0VNSBVGRK7",
+            databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // Approve event
+        async function approveEvent(collectionId, docId) {
+            try {
+                await db.collection(collectionId).doc(docId).update({ approvalStatus: "approved" });
+                fetchAllCollectionsAndDocs();
+            } catch (err) {
+                alert("Failed to approve: " + err.message);
+            }
+        }
+
+        // Deny event
+        async function denyEvent(collectionId, docId) {
+            try {
+                await db.collection(collectionId).doc(docId).update({ approvalStatus: "denied" });
+                fetchAllCollectionsAndDocs();
+            } catch (err) {
+                alert("Failed to deny: " + err.message);
+            }
+        }
+
+        // Fetch and display all documents from all collections (dashboard style)
+        async function fetchAllCollectionsAndDocs() {
+            const list = document.getElementById('data-list');
+            list.innerHTML = '';
+            try {
+                const collections = await db.listCollections();
+                if (collections.length === 0) {
+                    const div = document.createElement('div');
+                    div.textContent = "No collections found.";
+                    list.appendChild(div);
+                    return;
+                }
+                for (const collectionRef of collections) {
+                    const snapshot = await collectionRef.get();
+                    if (snapshot.empty) {
+                        const div = document.createElement('div');
+                        div.className = "event-approval-card";
+                        div.textContent = `No documents in collection: ${collectionRef.id}`;
+                        list.appendChild(div);
+                    } else {
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            const card = document.createElement('div');
+                            card.className = "event-approval-card";
+                            card.innerHTML = `
+                                <h3>${data.name || doc.id}</h3>
+                                <p><strong>Date:</strong> ${data.date || '-'}</p>
+                                <p><strong>Time:</strong> ${data.time || '-'}</p>
+                                <p><strong>Location:</strong> ${data.location || '-'}</p>
+                                <p><strong>Category:</strong> ${data.category || '-'}</p>
+                                <p><strong>Attribute:</strong> ${data.attribute || '-'}</p>
+                                <p><strong>Description:</strong> ${data.description || '-'}</p>
+                                <p style="font-size:0.9em;color:#888;"><strong>Collection:</strong> ${collectionRef.id}</p>
+                                <p><strong>Status:</strong> ${data.approvalStatus || 'pending'}</p>
+                                <div class="approval-actions">
+                                    <button class="approve-btn" onclick="approveEvent('${collectionRef.id}','${doc.id}')">Approve</button>
+                                    <button class="reject-btn" onclick="denyEvent('${collectionRef.id}','${doc.id}')">Deny</button>
+                                </div>
+                            `;
+                            list.appendChild(card);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+                const li = document.createElement('li');
+                li.textContent = "Error fetching data: " + error.message;
+                list.appendChild(li);
+            }
+        }
+
+        // Expose functions to global scope for inline onclick
+        window.approveEvent = approveEvent;
+        window.denyEvent = denyEvent;
+
+        // Dropdown logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifBtn = document.getElementById('notifBtn');
+            const notifMenu = document.getElementById('notifMenu');
+            const profileBtn = document.getElementById('profileBtn');
+            const profileMenu = document.getElementById('profileMenu');
+
+            notifBtn.addEventListener('click', function(e) {
+                notifMenu.classList.toggle('show');
+                profileMenu.classList.remove('show');
+                e.stopPropagation();
+            });
+            profileBtn.addEventListener('click', function(e) {
+                profileMenu.classList.toggle('show');
+                notifMenu.classList.remove('show');
+                e.stopPropagation();
+            });
+            document.addEventListener('click', function() {
+                notifMenu.classList.remove('show');
+                profileMenu.classList.remove('show');
+            });
+        });
+
+        fetchAllCollectionsAndDocs();
+    </script>
+</body>
+</html>
+

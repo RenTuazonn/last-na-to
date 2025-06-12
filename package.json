@@ -1,0 +1,25 @@
+{
+  "name": "legit-na-to",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gpt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RenTuazonn/Legit-na-to.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RenTuazonn/Legit-na-to/issues"
+  },
+  "homepage": "https://github.com/RenTuazonn/Legit-na-to#readme",
+  "dependencies": {
+    "firebase": "^11.8.1",
+    "openai": "^5.0.1"
+  }
+}
