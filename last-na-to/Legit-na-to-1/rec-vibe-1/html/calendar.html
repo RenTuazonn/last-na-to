@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="ai.css" />
+  <title>RecoVibe Calendar</title>
+  <style>
+    /* Basic styling for header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      align-items: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+
+    /* Navigation links styling */
+    .nav-links {
+      display: flex;
+      list-style-type: none;
+    }
+
+    .nav-links li {
+      margin-right: 20px;
+    }
+
+    /* Profile Icon Styling */
+    .profile-icon {
+      cursor: pointer;
+      margin-left: 20px;
+      position: relative;
+    }
+
+    /* Dropdown Menu Styling */
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 30px;
+      right: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      min-width: 160px;
+      z-index: 100;
+    }
+
+    .dropdown li {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .dropdown li:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown.show {
+      display: block;
+    }
+
+    .calendar {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .day-names {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+
+    .calendar-days div {
+      padding: 10px;
+      text-align: center;
+      border-radius: 4px;
+      transition: background 0.3s;
+      opacity: 0;
+      animation: fadeInDay 0.5s forwards;
+    }
+
+    .calendar-days div.empty {
+      background: transparent;
+      animation: none;
+      opacity: 1;
+    }
+
+    /* Fix: .today should override event status backgrounds */
+    .calendar-days div.today {
+      background: #007bff !important;
+      color: white !important;
+      font-weight: bold;
+      animation: highlightToday 0.7s;
+      position: relative;
+      z-index: 1;
+    }
+    .calendar-days div.past-event {
+      background: #f3f3f3;
+      color: #aaa;
+      position: relative;
+    }
+    .calendar-days div.present-event {
+      background: #e3f7e3;
+      color: #2d6cdf;
+      font-weight: bold;
+      position: relative;
+    }
+    .calendar-days div.future-event {
+      background: #eaf1fb;
+      color: #2d6cdf;
+      position: relative;
+    }
+    /* Fix stacking: .today must be last to override all event backgrounds */
+    .calendar-days div.past-event.today,
+    .calendar-days div.present-event.today,
+    .calendar-days div.future-event.today {
+      background: #007bff !important;
+      color: #fff !important;
+      font-weight: bold;
+      animation: highlightToday 0.7s;
+      position: relative;
+      z-index: 2;
+    }
+    .event-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: #2d6cdf;
+      border-radius: 50%;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    .event-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.25);
+      justify-content: center;
+      align-items: center;
+    }
+    .event-modal.show {
+      display: flex;
+      animation: fadeIn 0.2s;
+    }
+    .event-modal-content {
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+      min-width: 320px;
+      max-width: 95vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      position: relative;
+      animation: popIn 0.18s;
+    }
+    .close-modal {
+      position: absolute;
+      top: 12px; right: 18px;
+      font-size: 1.5rem;
+      color: #888;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #modal-events-list {
+      margin: 1rem 0 1.2rem 0;
+      padding: 0;
+      list-style: none;
+    }
+    #modal-events-list li {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f5f8fd;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+    }
+    .delete-event-btn {
+      background: none;
+      border: none;
+      color: #e53935;
+      font-size: 1.1em;
+      cursor: pointer;
+      margin-left: 0.7em;
+    }
+    #addEventForm {
+      display: flex;
+      gap: 0.5rem;
+    }
+    #addEventForm input {
+      flex: 1;
+      padding: 0.4rem 0.7rem;
+      border-radius: 6px;
+      border: 1px solid #cfd8dc;
+    }
+    #addEventForm button {
+      background: #2d6cdf;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .calendar-header,
+    .day-names,
+    .calendar-days div,
+    .event-modal-content {
+      will-change: opacity, transform;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+    .calendar-nav-btn {
+      transition: background 0.2s, transform 0.2s;
+    }
+    .calendar-nav-btn:hover {
+      background: #eaf1fb;
+      color: #2d6cdf;
+      transform: scale(1.15);
+    }
+    .event-modal-content.slide-in {
+      animation: popIn 0.18s, fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes fadeInDay {
+      from { opacity: 0; transform: translateY(10px);}
+      to   { opacity: 1; transform: translateY(0);}
+    }
+    @keyframes highlightToday {
+      0%   { box-shadow: 0 0 0 0 #007bff44; }
+      70%  { box-shadow: 0 0 0 12px #007bff22; }
+      100% { box-shadow: 0 0 0 0 #007bff00; }
+    }
+    @keyframes popIn {
+      from { transform: scale(0.95);}
+      to   { transform: scale(1);}
+    }
+    @media (max-width: 700px) {
+      .calendar {
+        max-width: 100vw;
+        margin: 16px 0;
+        padding: 10px 2vw;
+        border-radius: 0.5rem;
+      }
+      .calendar-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 10px;
+      }
+      .calendar-header h2 {
+        font-size: 1.2rem;
+      }
+      .day-names, .calendar-days {
+        gap: 3px;
+      }
+      .calendar-days div, .day-names div {
+        padding: 7px 0;
+        font-size: 0.95rem;
+      }
+      .event-modal-content {
+        min-width: 90vw;
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+      }
+    }
+    @media (max-width: 500px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0.7rem 0.5rem;
+        gap: 0.5rem;
+      }
+      .logo-img {
+        max-width: 90px;
+        height: 32px;
+      }
+      .nav-links {
+        gap: 0.5rem;
+        font-size: 0.97rem;
+      }
+      .calendar {
+        padding: 5px 1vw;
+      }
+      .calendar-header h2 {
+        font-size: 1rem;
+      }
+      .calendar-days div, .day-names div {
+        font-size: 0.85rem;
+        padding: 5px 0;
+      }
+      .event-modal-content {
+        min-width: 98vw;
+        padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+      }
+      #addEventForm button {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-container">
+      <img src="logo-light-transparent.png" alt="CampusConnect Logo" class="logo-img" />
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <!-- Notification icon with dropdown (copied from ai.html) -->
+        <li class="notification" id="notificationBtn">
+          <div class="notification-icon" id="notifIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" height="26" width="26" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-badge" id="notifCount" style="display: none;">3</span>
+          </div>
+          <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-dropdown-content">
+              <p>No new notifications</p>
+            </div>
+          </div>
+        </li>
+        <li><a href="ai.html">Home</a></li>
+        <li><a href="calendar.html">Calendar</a></li>
+        <li><a href="user.html">Orgs</a></li>
+        <li class="profile-menu">
+          <div class="profile-icon" id="profileIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="#333">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <ul class="dropdown" id="profileDropdown">
+            <li><a href="#">View Profile</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#" onclick="logout()">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <script>
+    // Profile and notification dropdown logic (from ai.html)
+    document.addEventListener('DOMContentLoaded', function() {
+      const profileIcon = document.getElementById('profileIcon');
+      const profileDropdown = document.getElementById('profileDropdown');
+      const notifIcon = document.getElementById('notifIcon');
+      const notifDropdown = document.getElementById('notifDropdown');
+
+      profileIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('show');
+        notifDropdown.classList.remove('show');
+      });
+
+      notifIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notifDropdown.classList.toggle('show');
+        profileDropdown.classList.remove('show');
+      });
+
+      document.addEventListener('click', function() {
+        profileDropdown.classList.remove('show');
+        notifDropdown.classList.remove('show');
+      });
+    });
+    function logout() {
+      alert("Logged out!");
+      // Add your logout logic here
+    }
+  </script>
+  <div class="calendar">
+    <div class="calendar-header">
+      <button onclick="changeMonth(-1)" class="calendar-nav-btn">‹</button>
+      <h2 id="month-year" class="fade-in"></h2>
+      <button onclick="changeMonth(1)" class="calendar-nav-btn">›</button>
+    </div>
+    <div class="day-names fade-in">
+      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div class="calendar-days" id="calendar-days"></div>
+    <div id="event-details-modal" class="event-modal">
+      <div class="event-modal-content slide-in">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h3 id="modal-date"></h3>
+        <ul id="modal-events-list"></ul>
+        <form id="addEventForm">
+          <input type="text" id="eventTitleInput" placeholder="Add event title..." required />
+          <button type="submit">Add Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Use localStorage for persistent events (per user/browser)
+    function loadEventsFromStorage() {
+      try {
+        return JSON.parse(localStorage.getItem('calendarEvents')) || [];
+      } catch {
+        return [];
+      }
+    }
+    function saveEventsToStorage(evts) {
+      localStorage.setItem('calendarEvents', JSON.stringify(evts));
+    }
+
+    let events = loadEventsFromStorage();
+
+    function getEventStatus(eventDate, todayDate) {
+      if (eventDate < todayDate) return 'past-event';
+      if (eventDate > todayDate) return 'future-event';
+      return 'present-event';
+    }
+
+    const monthYear = document.getElementById('month-year');
+    const calendarDays = document.getElementById('calendar-days');
+    const eventModal = document.getElementById('event-details-modal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalDate = document.getElementById('modal-date');
+    const modalEventsList = document.getElementById('modal-events-list');
+    const addEventForm = document.getElementById('addEventForm');
+    const eventTitleInput = document.getElementById('eventTitleInput');
+
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+    let selectedDateStr = null;
+
+    function renderCalendar(month, year) {
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const currentDate = new Date();
+
+      calendarDays.innerHTML = '';
+      monthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+
+      // Add empty cells before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.classList.add('empty');
+        calendarDays.appendChild(emptyCell);
+      }
+
+      // Fill days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        dayCell.textContent = day;
+
+        // Build date string for comparison
+        const cellDate = new Date(year, month, day);
+        const cellDateStr = cellDate.toISOString().slice(0, 10);
+        const todayStr = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()).toISOString().slice(0, 10);
+
+        // Find events for this day
+        const dayEvents = events.filter(ev => ev.date === cellDateStr);
+
+        // Add event status class if event exists
+        if (dayEvents.length > 0) {
+          const status = getEventStatus(cellDateStr, todayStr);
+          dayCell.classList.add(status);
+          const dot = document.createElement('span');
+          dot.className = 'event-dot';
+          dayCell.appendChild(dot);
+          dayCell.title = dayEvents.map(ev => ev.title).join(', ');
+        }
+
+        // Highlight today
+        if (
+          day === currentDate.getDate() &&
+          month === currentDate.getMonth() &&
+          year === currentDate.getFullYear()
+        ) {
+          dayCell.classList.add('today');
+        }
+
+        // Make day interactive
+        dayCell.style.cursor = 'pointer';
+        dayCell.addEventListener('click', () => openEventModal(cellDateStr, day, month, year));
+
+        // Animate each day with a slight delay for a staggered effect
+        dayCell.style.animationDelay = (0.02 * day) + 's';
+
+        calendarDays.appendChild(dayCell);
+      }
+    }
+
+    function openEventModal(dateStr, day, month, year) {
+      selectedDateStr = dateStr;
+      modalDate.textContent = `${new Date(year, month, day).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`;
+      renderModalEvents();
+      eventModal.classList.add('show');
+      eventTitleInput.value = '';
+      eventTitleInput.focus();
+    }
+
+    function closeEventModal() {
+      eventModal.classList.remove('show');
+      selectedDateStr = null;
+    }
+
+    function renderModalEvents() {
+      modalEventsList.innerHTML = '';
+      const dayEvents = events.filter(ev => ev.date === selectedDateStr);
+      if (dayEvents.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No events for this day.';
+        modalEventsList.appendChild(li);
+      } else {
+        dayEvents.forEach((ev, idx) => {
+          const li = document.createElement('li');
+          li.textContent = ev.title;
+          // Delete button
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-event-btn';
+          delBtn.title = 'Delete event';
+          delBtn.textContent = '🗑';
+          delBtn.onclick = () => {
+            events = events.filter((e, i) => !(e.date === selectedDateStr && i === idx));
+            saveEventsToStorage(events);
+            renderModalEvents();
+            renderCalendar(currentMonth, currentYear);
+          };
+          li.appendChild(delBtn);
+          modalEventsList.appendChild(li);
+        });
+      }
+    }
+
+    addEventForm.onsubmit = function(e) {
+      e.preventDefault();
+      const title = eventTitleInput.value.trim();
+      if (!title) return;
+      events.push({ date: selectedDateStr, title });
+      saveEventsToStorage(events);
+      renderModalEvents();
+      renderCalendar(currentMonth, currentYear);
+      eventTitleInput.value = '';
+    };
+
+    closeModalBtn.onclick = closeEventModal;
+    eventModal.onclick = function(e) {
+      if (e.target === eventModal) closeEventModal();
+    };
+
+    function changeMonth(offset) {
+      currentMonth += offset;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentMonth, currentYear);
+    }
+
+    renderCalendar(currentMonth, currentYear);
+
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+      if (!event.target.matches('.profile-icon') && !event.target.matches('.dropdown') && !event.target.matches('.dropdown li')) {
+        const dropdown = document.getElementById("profileDropdown");
+        if (dropdown && dropdown.classList.contains('show')) {
+          dropdown.classList.remove('show');
+        }
+      }
+    };
+  </script>
+</body>
+</html>

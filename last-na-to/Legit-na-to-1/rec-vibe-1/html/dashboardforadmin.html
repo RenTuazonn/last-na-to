@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RecoVibe</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="dash.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="header-bar">
+    <span class="header-title">
+      <h3>🎓 Admin Dashboard</h3>
+      <p></p> </span>
+    <div class="header-icons">
+      <button class="icon-btn" id="notifBtn" title="Notifications">
+        <i class="fa-regular fa-bell"></i>
+      </button>
+      <div class="dropdown" id="notifDropdown" style="display:none;">
+        <span style="display:block; padding:12px 20px; color:#888;">No new notifications</span>
+      </div>
+      <button class="icon-btn" id="profileBtn" title="Profile">
+        <i class="fa-regular fa-user"></i>
+      </button>
+      <div class="dropdown" id="profileDropdown" style="display:none;">
+        <a href="#">View Profile</a>
+        <a href="#">Settings</a>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- Left Section: Welcome Message -->
+    <div class="welcome-text">
+    </div>
+
+    <!-- Right Section: Back Button and Dashboard Content -->
+    <div class="right-content">
+      <!-- Back Button -->
+      <button class="back-button" onclick="goBack()">🔙 Back</button>
+
+      <!-- Events Section -->
+      <div class="card" id="eventsSection">
+        <h2>📅 Created Events</h2>
+        <input class="filter-input" type="text" id="eventSearch" placeholder="🔍 Search events..." />
+        <div style="margin: 10px 0;">
+          <label for="eventDateFilter">Event Date</label>
+          <input type="date" id="eventDateFilter" class="filter-input" />
+          
+          <label for="categoryFilter">Event Category</label>
+          <select id="categoryFilter" class="filter-input">
+            <option value="">All Categories</option>
+            <option value="Esports">Esports</option>
+            <option value="Org">Org</option>
+            <option value="Social">Social</option>
+            <option value="Sports">Sports</option>
+            <option value="Academic">Academic</option>
+          </select>
+        </div>
+        <div id="eventsList"></div>
+      </div>
+
+      <!-- Users Section -->
+      <div class="card" id="usersSection">
+        <h2>👥 Registered Users</h2>
+        <input class="filter-input" type="text" id="userSearch" placeholder="🔍 Search users..." />
+        
+        <div style="margin-bottom: 10px;">
+          <button class="action-btn" onclick="openRegisteredUserFrame()">View All Registered Users</button>
+        </div>
+        
+        <div id="usersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+        authDomain: "first-proj-a5fff.firebaseapp.com",
+        projectId: "first-proj-a5fff",
+        storageBucket: "first-proj-a5fff.appspot.com",
+        messagingSenderId: "902560724938",
+        appId: "1:902560724938:web:2956090fc8afb5ce888133",
+        measurementId: "G-0VNSBVGRK7",
+        databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
+
+    // --- Fetch and display events from Firestore ---
+    async function fetchFirestoreEvents(filter = {}) {
+        const eventsList = document.getElementById('eventsList');
+        eventsList.innerHTML = '';
+        try {
+            let queryRef = db.collection("events");
+            if (filter.category) {
+                queryRef = queryRef.where("category", "==", filter.category);
+            }
+            if (filter.date) {
+                queryRef = queryRef.where("date", "==", filter.date);
+            }
+            const querySnapshot = await queryRef.get();
+            let found = false;
+            querySnapshot.forEach((doc) => {
+                found = true;
+                const event = doc.data();
+                const eventElement = document.createElement('div');
+                eventElement.classList.add('event');
+                eventElement.innerHTML = `
+                    <h3>${event.name || ''}</h3>
+                    <p>${event.description || ''}</p>
+                    <p><strong>Category:</strong> ${event.category || ''}</p>
+                    <p><strong>Date:</strong> ${event.date || ''}</p>
+                    <p><strong>Time:</strong> ${event.time || ''}</p>
+                    <p><strong>Location:</strong> ${event.location || ''}</p>
+                    ${event.academicHeadStatus ? `
+                      <p>
+                        <strong>Academic Head Status:</strong> 
+                        <span class="status ${event.academicHeadStatus}">
+                          ${event.academicHeadStatus.charAt(0).toUpperCase() + event.academicHeadStatus.slice(1)}
+                        </span>
+                      </p>
+                    ` : ''}
+                    ${event.studentAffairsStatus ? `
+                      <p>
+                        <strong>Student Affairs Status:</strong> 
+                        <span class="status ${event.studentAffairsStatus}">
+                          ${event.studentAffairsStatus.charAt(0).toUpperCase() + event.studentAffairsStatus.slice(1)}
+                        </span>
+                      </p>
+                    ` : ''}
+                `;
+                // Example: Add a "View RSVPs" button for each event
+                eventElement.innerHTML += `<button onclick="showRSVPs('${doc.id}')">View RSVPs</button>`;
+                eventsList.appendChild(eventElement);
+            });
+            if (!found) {
+                eventsList.innerHTML = '<p>No events found.</p>';
+            }
+        } catch (error) {
+            eventsList.innerHTML = `<p>Error loading events: ${error.message}</p>`;
+        }
+    }
+    fetchFirestoreEvents();
+
+    document.getElementById('eventSearch').addEventListener('input', async function() {
+        const search = this.value.toLowerCase();
+        const eventsList = document.getElementById('eventsList');
+        const querySnapshot = await db.collection("events").get();
+        eventsList.innerHTML = '';
+        let found = false;
+        querySnapshot.forEach((doc) => {
+            const event = doc.data();
+            if (
+                (event.name && event.name.toLowerCase().includes(search)) ||
+                (event.description && event.description.toLowerCase().includes(search))
+            ) {
+                found = true;
+                const eventElement = document.createElement('div');
+                eventElement.classList.add('event');
+                eventElement.innerHTML = `
+                    <h3>${event.name || ''}</h3>
+                    <p>${event.description || ''}</p>
+                    <p><strong>Category:</strong> ${event.category || ''}</p>
+                    <p><strong>Date:</strong> ${event.date || ''}</p>
+                    <p><strong>Time:</strong> ${event.time || ''}</p>
+                    <p><strong>Location:</strong> ${event.location || ''}</p>
+                    ${event.academicHeadStatus ? `
+                      <p>
+                        <strong>Academic Head Status:</strong> 
+                        <span class="status ${event.academicHeadStatus}">
+                          ${event.academicHeadStatus.charAt(0).toUpperCase() + event.academicHeadStatus.slice(1)}
+                        </span>
+                      </p>
+                    ` : ''}
+                    ${event.studentAffairsStatus ? `
+                      <p>
+                        <strong>Student Affairs Status:</strong> 
+                        <span class="status ${event.studentAffairsStatus}">
+                          ${event.studentAffairsStatus.charAt(0).toUpperCase() + event.studentAffairsStatus.slice(1)}
+                        </span>
+                      </p>
+                    ` : ''}
+                `;
+                // Example: Add a "View RSVPs" button for each event
+                eventElement.innerHTML += `<button onclick="showRSVPs('${doc.id}')">View RSVPs</button>`;
+                eventsList.appendChild(eventElement);
+            }
+        });
+        if (!found) {
+            eventsList.innerHTML = '<p>No events found.</p>';
+        }
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        fetchFirestoreEvents({
+            category: this.value || undefined,
+            date: document.getElementById('eventDateFilter').value || undefined
+        });
+    });
+
+    document.getElementById('eventDateFilter').addEventListener('change', function() {
+        fetchFirestoreEvents({
+            category: document.getElementById('categoryFilter').value || undefined,
+            date: this.value || undefined
+        });
+    });
+
+    function openRegisteredUserFrame() {
+        window.open('RegisteredUser.html', 'RegisteredUserFrame', 'width=900,height=600');
+    }
+
+    function logout() {
+      // Optional: Add Firebase sign out if using authentication
+      if (firebase.auth) {
+        firebase.auth().signOut().then(function() {
+          window.location.href = 'firstframe.html';
+        }).catch(function(error) {
+          alert('Logout failed: ' + error.message);
+        });
+      } else {
+        window.location.href = 'firstframe.html';
+      }
+    }
+
+    function goBack() {
+      // Redirect to your navigation page (replace 'navigation.html' with your actual navigation file)
+      window.location.href = 'navigation.html';
+    }
+
+    // Toggle notification dropdown
+    document.getElementById('notifBtn').onclick = function(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('notifDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      document.getElementById('profileDropdown').style.display = 'none';
+    };
+    // Toggle profile dropdown
+    document.getElementById('profileBtn').onclick = function(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      document.getElementById('notifDropdown').style.display = 'none';
+    };
+    // Hide dropdowns when clicking outside
+    document.body.onclick = function() {
+      document.getElementById('notifDropdown').style.display = 'none';
+      document.getElementById('profileDropdown').style.display = 'none';
+    };
+
+    // Fetch and display RSVPs for a specific event
+    async function fetchEventRSVPs(eventId) {
+      const rsvpsList = [];
+      try {
+        const rsvpsSnapshot = await db.collection("events").doc(eventId).collection("rsvps").get();
+        rsvpsSnapshot.forEach(doc => {
+          rsvpsList.push(doc.data());
+        });
+        return rsvpsList; // Array of {email, timestamp, ...}
+      } catch (error) {
+        console.error("Error fetching RSVPs:", error);
+        return [];
+      }
+    }
+
+    window.showRSVPs = async function(eventId) {
+      const rsvps = await fetchEventRSVPs(eventId);
+      if (rsvps.length === 0) {
+        alert("No one has joined this event yet.");
+        return;
+      }
+      let msg = "Joined Users:\n";
+      rsvps.forEach(rsvp => {
+        msg += (rsvp.email || "Unknown") + "\n";
+      });
+      alert(msg);
+    };
+  </script>
+</body></body>
+</html>

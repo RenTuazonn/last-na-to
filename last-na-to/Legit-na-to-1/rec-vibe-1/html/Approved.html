@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Database</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+      authDomain: "first-proj-a5fff.firebaseapp.com",
+      databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com",
+      projectId: "first-proj-a5fff",
+      storageBucket: "first-proj-a5fff.firebasestorage.app",
+      messagingSenderId: "902560724938",
+      appId: "1:902560724938:web:1922c5b20fb5e851888133",
+      measurementId: "G-E1RCELQNR7"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fetch and display all events
+    async function loadAllEvents() {
+      const eventsTable = document.getElementById('eventsTableBody');
+      eventsTable.innerHTML = '';
+      const querySnapshot = await getDocs(collection(db, "events"));
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        // Academic Head Status
+        let academicStatus = "Pending";
+        if (data.academicApproved === true) academicStatus = "Approved";
+        else if (data.academicApproved === false) academicStatus = "Rejected";
+        // Student Affairs Status
+        let affairsStatus = "Pending";
+        if (data.affairsApproved === true) affairsStatus = "Approved";
+        else if (data.affairsApproved === false) affairsStatus = "Rejected";
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${data.name}</td>
+          <td>${data.date}</td>
+          <td>${data.description}</td>
+          <td>${academicStatus}</td>
+          <td>${affairsStatus}</td>
+        `;
+        eventsTable.appendChild(tr);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAllEvents);
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+  table {
+    border: 1px solid #2196F3;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #e3f2fd;
+    box-shadow: 0 2px 8px #90caf9;
+  }
+  th {
+    background: #1976d2;
+    color: #fff;
+    border: 1px solid #2196F3;
+    font-size: 1.1em;
+    padding: 12px 8px;
+  }
+  td {
+    background: #bbdefb;
+    border: 1px solid #2196F3;
+    padding: 10px 8px;
+    font-size: 1em;
+  }
+  .header-bar {
+    background: #1976d2;
+    padding: 12px 0;
+    box-shadow: 0 2px 6px #90caf9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  .header-title {
+    color: #fff;
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+  .header-icons {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    margin-left: 10px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    position: relative;
+    outline: none;
+  }
+  .icon-btn:focus,
+  .icon-btn:hover {
+    background: #1565c0;
+  }
+  .dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 38px;
+    background: #fff;
+    color: #333;
+    min-width: 170px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px #90caf9;
+    z-index: 10;
+    font-size: 1em;
+    overflow: hidden;
+  }
+  #notifDropdown {
+    right: 70px;
+  }
+  #profileDropdown {
+    right: 0;
+  }
+  .dropdown a, .dropdown button {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    text-align: left;
+    color: #1976d2;
+    text-decoration: none;
+    font-size: 1em;
+    cursor: pointer;
+    border-bottom: 1px solid #e3f2fd;
+    transition: background 0.2s;
+  }
+  .dropdown a:last-child, .dropdown button:last-child {
+    border-bottom: none;
+  }
+  .dropdown a:hover, .dropdown button:hover {
+    background: #e3f2fd;
+  }
+  </style>
+</head>
+<body>
+  <!-- Header Bar Start -->
+  <div class="header-bar">
+    <span class="header-title">Student Affairs Dashboard</span>
+    <div class="header-icons">
+      <button class="icon-btn" id="notifBtn" title="Notifications">
+        <i class="fa-regular fa-bell"></i>
+      </button>
+      <div class="dropdown" id="notifDropdown">
+        <span style="display:block; padding:12px 20px; color:#888;">No new notifications</span>
+      </div>
+      <button class="icon-btn" id="profileBtn" title="Profile">
+        <i class="fa-regular fa-user"></i>
+      </button>
+      <div class="dropdown" id="profileDropdown">
+        <a href="#">View Profile</a>
+        <a href="#">Settings</a>
+        <button onclick="alert('Logged out!')">Logout</button>
+      </div>
+    </div>
+  </div>
+  <!-- Header Bar End -->
+
+  <h2>All Events Database</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Academic Head Status</th>
+        <th>Student Affairs Status</th>
+      </tr>
+    </thead>
+    <tbody id="eventsTableBody">
+      <!-- Events will be loaded here -->
+    </tbody>
+  </table>
+  <script>
+  // Toggle notification dropdown
+  document.getElementById('notifBtn').onclick = function(e) {
+    e.stopPropagation();
+    document.getElementById('notifDropdown').style.display =
+      document.getElementById('notifDropdown').style.display === 'block' ? 'none' : 'block';
+    document.getElementById('profileDropdown').style.display = 'none';
+  };
+  // Toggle profile dropdown
+  document.getElementById('profileBtn').onclick = function(e) {
+    e.stopPropagation();
+    document.getElementById('profileDropdown').style.display =
+      document.getElementById('profileDropdown').style.display === 'block' ? 'none' : 'block';
+    document.getElementById('notifDropdown').style.display = 'none';
+  };
+  // Hide dropdowns when clicking outside
+  document.body.onclick = function() {
+    document.getElementById('notifDropdown').style.display = 'none';
+    document.getElementById('profileDropdown').style.display = 'none';
+  };
+  </script>
+</body>
+</html>
