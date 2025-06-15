@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RecoVibe</title>
+  <link rel="stylesheet" href="ai.css" />
+<header class="header">
+  <div class="logo-container">
+    <img src="logo-light-transparent.png" alt="RecoVibe Logo" class="logo-img" />
+  </div>
+  <nav>
+    <ul class="nav-links">
+      <!-- Notification icon with dropdown -->
+      <li class="notification" id="notificationBtn">
+        <div class="notification-icon" id="notifIcon">
+          <!-- Modern bell SVG -->
+          <svg xmlns="http://www.w3.org/2000/svg" height="26" width="26" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="notification-badge" id="notifCount" style="display: none;">3</span>
+        </div>
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-dropdown-content">
+            <p>No new notifications</p>
+          </div>
+        </div>
+      </li>
+
+      <!-- Navigation links -->
+      <li><a href="ai.html">Home</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="user.html">Orgs</a></li>
+
+      <!-- Profile menu -->
+      <li class="profile-menu">
+        <div class="profile-icon" id="profileIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="#333">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+        <ul class="dropdown" id="profileDropdown">
+          <li><a href="personalisation.html">View Profile</a></li>
+          <li><a href="index.html" onclick="logout()">Log Out</a></li>
+        </ul>
+      </li>
+        </ul>
+      </nav>
+    </header>
+    <script>
+      // Profile dropdown toggle
+      document.addEventListener('DOMContentLoaded', function() {
+        const profileIcon = document.getElementById('profileIcon');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const notifIcon = document.getElementById('notifIcon');
+        const notifDropdown = document.getElementById('notifDropdown');
+
+        profileIcon.addEventListener('click', function(e) {
+          e.stopPropagation();
+          profileDropdown.classList.toggle('show');
+          notifDropdown.classList.remove('show');
+        });
+
+        notifIcon.addEventListener('click', function(e) {
+          e.stopPropagation();
+          notifDropdown.classList.toggle('show');
+          profileDropdown.classList.remove('show');
+        });
+
+        document.addEventListener('click', function() {
+          profileDropdown.classList.remove('show');
+          notifDropdown.classList.remove('show');
+        });
+      });
+    </script>
+
+  <main class="main">
+    <section class="intro">
+      <h1>Find Your Campus Events</h1>
+      <p>Discover school activities, clubs, and events tailored to your interests. Never miss out on what's happening around campus!</p>
+    </section>
+
+    <section class="search-section">
+      <div class="search-header">
+        <div class="title">
+          <span class="icon">💡</span>
+          <h2>Smart Recommendations</h2>
+        </div>
+        <div class="toggle">
+          <label for="personalization">Personalization</label>
+          <input type="checkbox" id="personalization" checked />
+        </div>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="What kind of school events are you interested in?" />
+        <button>🔍</button>
+        
+      </div>
+
+      <div class="filters">
+  <span>Quick filters:</span>
+  <button class="filter-btn" data-category="Sports">Sports</button>
+  <button class="filter-btn" data-category="Academic">Academic</button>
+  <button class="filter-btn" data-category="Arts">Orgs</button>
+  <button class="filter-btn" data-category="Orgs">Clubs</button>
+  <button class="filter-btn" data-category="Social">Social</button>
+</div>
+
+    </section>
+
+    <section class="events-view">
+      <h3>Upcoming Campus Events</h3>
+      <div class="category-view">
+        <label for="category">View:</label>
+        <select id="category">
+          <option>All Categories</option>
+        </select>
+      </div>
+    </section>
+  </main>
+<section class="event-cards" id="eventCardsContainer">
+  <!-- Cards will be dynamically inserted here -->
+</section>
+<section class="featured-event">
+  
+  <div class="event-details">
+    <span class="label">Campus-Wide Event</span>
+    <h2>Annual Spring Festival</h2>
+    <p>
+      Join us for the biggest campus celebration of the year! Live music, food stalls, games, club showcases, and much more. Don't miss the fireworks display at 9 PM.
+    </p>
+    <p>📅 May 15, 2023 • 2:00 PM – 10:00 PM</p>
+    <p>📍 Main Campus Quad</p>
+    <div class="attendees">
+      <span class="avatar">J</span>
+      <span class="avatar">M</span>
+      <span class="avatar">K</span>
+      <span class="count">+245 attending</span>
+    </div>
+    <button class="rsvp-btn">RSVP Now</button>
+    <span class="tag">Featured</span>
+  </div>
+</section>
+
+<section class="weekly-schedule">
+  <h3>This Week's Schedule</h3>
+  <div class="week-days">
+  <div class="day" data-day="Mon">Mon<br><span>8</span></div>
+  <div class="day" data-day="Tue">Tue<br><span>9</span></div>
+  <div class="day" data-day="Wed">Wed<br><span>10</span></div>
+  <div class="day active" data-day="Thu">Thu<br><span>11</span></div>
+  <div class="day" data-day="Fri">Fri<br><span>12</span></div>
+  <div class="day" data-day="Sat">Sat<br><span>13</span></div>
+  <div class="day" data-day="Sun">Sun<br><span>14</span></div>
+  <a href="calendar.html" class="calendar-link">View Full Calendar ➤</a>
+</div>
+  <div class="events">
+    <div id="noEventsMsg" style="display: none;">No events for today.</div>
+
+  <div class="event-item" data-day="Thu">
+      <span class="dot blue"></span>
+      <div class="event-info">
+        <div class="time-type">
+          <span class="time">8:00 AM – 10:00 AM</span>
+          <span class="badge academic">Academic</span>
+        </div>
+        <strong>Science Fair Preparation</strong>
+        <p>Science Building, Room 302</p>
+      </div>
+    </div>
+
+     <div class="event-item" data-day="Wed">
+      <span class="dot green"></span>
+      <div class="event-info">
+        <div class="time-type">
+          <span class="time">12:30 PM – 2:00 PM</span>
+          <span class="badge clubs">Orgs</span>
+        </div>
+        <strong>Debate Club Meeting</strong>
+        <p>Student Center, Meeting Room B</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Day mapping
+  const jsToDayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = jsToDayMap[new Date().getDay()];
+
+  const dayButtons = document.querySelectorAll('.week-days .day');
+  const eventItems = document.querySelectorAll('.event-item');
+  const noEventsMsg = document.getElementById('noEventsMsg');
+
+  function activateDay(dayLabel) {
+    let hasEvents = false;
+
+    dayButtons.forEach(btn => {
+      const isMatch = btn.getAttribute('data-day') === dayLabel;
+      btn.classList.toggle('active', isMatch);
+    });
+
+    eventItems.forEach(item => {
+      const match = item.getAttribute('data-day') === dayLabel;
+      item.style.display = match ? 'flex' : 'none';
+      if (match) hasEvents = true;
+    });
+
+    noEventsMsg.style.display = hasEvents ? 'none' : 'block';
+  }
+
+  // Activate today by default
+  activateDay(today);
+
+  // Add listeners to day buttons
+  dayButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedDay = button.getAttribute('data-day');
+      activateDay(selectedDay);
+    });
+  });
+
+  // --- EVENTS FETCHING LOGIC ---
+  async function loadEvents() {
+    const container = document.getElementById('eventCardsContainer');
+    container.innerHTML = '';
+    try {
+      // Fetch all events from Firestore, ordered by date
+      const snapshot = await firebase.firestore().collection('events').orderBy('date', 'asc').get();
+      if (snapshot.empty) {
+        container.innerHTML = '<p>No events found.</p>';
+        return;
+      }
+      // Build a list of unique categories for the filter dropdown
+      const categoriesSet = new Set();
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        if (event.category) categoriesSet.add(event.category);
+      });
+      // Populate the category select dropdown
+      const categorySelect = document.getElementById('category');
+      categorySelect.innerHTML = '<option>All Categories</option>';
+      categoriesSet.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+
+      // Render event cards
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="category">${event.category || ''}</div>
+          <h4>${event.name || ''}</h4>
+          <p>📅 ${event.date || ''} • ${event.time || ''}</p>
+          <p>📍 ${event.location || ''}</p>
+          <p class="attending">${event.attending ? event.attending + ' attending' : ''}</p>
+          <div class="card-actions">
+            <a href="#" class="more-info-link">More Info</a>
+            <button class="rsvp-btn">RSVP</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Re-apply filter logic after loading events
+      applyFilters();
+
+      // RSVP button logic for dynamically created buttons
+      container.querySelectorAll('.rsvp-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          alert('You have RSVP’d for this event!');
+        });
+      });
+
+      // More Info logic (optional, can be expanded)
+      container.querySelectorAll('.more-info-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          alert('More event details coming soon!');
+        });
+      });
+
+    } catch (err) {
+      container.innerHTML = `<p>Error loading events: ${err.message}</p>`;
+    }
+  }
+
+  // --- Filtering logic ---
+  let activeFilters = new Set();
+  const filterButtonsContainer = document.querySelector('.filters');
+  const initialFilters = [
+    { label: 'Sports', value: 'Sports' },
+    { label: 'Academic', value: 'Academic' },
+    { label: 'Orgs', value: 'Arts' },
+    { label: 'Clubs', value: 'Orgs' },
+    { label: 'Social', value: 'Social' }
+  ];
+  const searchInput = document.getElementById('searchInput');
+  const categorySelect = document.getElementById('category');
+
+  // Helper to render quick filter buttons and chips
+  function renderQuickFilters() {
+    // Remove all filter buttons and chips except the label
+    filterButtonsContainer.querySelectorAll('.filter-btn, .filter-chip').forEach(el => el.remove());
+
+    // Render chips for active filters (with deselect and animation)
+    initialFilters.forEach(f => {
+      if (activeFilters.has(f.value)) {
+        const chip = document.createElement('span');
+        chip.className = 'filter-chip filter-chip-active';
+        chip.textContent = f.label;
+        chip.setAttribute('data-category', f.value);
+        // Add deselect (x) button
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'chip-remove';
+        
+        removeBtn.addEventListener('click', () => {
+          // Animate chip out
+          chip.classList.add('chip-fade-out');
+          setTimeout(() => {
+            activeFilters.delete(f.value);
+            renderQuickFilters();
+            applyFilters();
+          }, 200); // match CSS transition duration
+        });
+        chip.appendChild(removeBtn);
+        filterButtonsContainer.appendChild(chip);
+      }
+    });
+
+    // Render filter buttons for non-active filters (always show all)
+    initialFilters.forEach(f => {
+      if (!activeFilters.has(f.value)) {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-category', f.value);
+        btn.textContent = f.label;
+        btn.addEventListener('click', () => {
+          activeFilters.add(f.value);
+          renderQuickFilters();
+          applyFilters();
+        });
+        filterButtonsContainer.appendChild(btn);
+      }
+    });
+  }
+
+  function applyFilters() {
+    const searchQuery = searchInput.value.toLowerCase();
+    const selectedCategory = categorySelect.value;
+    const cards = document.querySelectorAll('.event-cards .card');
+
+    cards.forEach(card => {
+      const category = card.querySelector('.category').textContent.trim();
+      const title = card.querySelector('h4').textContent.toLowerCase();
+
+      // Multi-filter logic: show if matches any active filter, or if none are active
+      const matchesQuickFilters =
+        activeFilters.size === 0 || activeFilters.has(category);
+
+      const matchesCategory =
+        selectedCategory === 'All Categories' || category === selectedCategory;
+
+      const matchesSearch = title.includes(searchQuery);
+
+      card.style.display =
+        matchesQuickFilters && matchesCategory && matchesSearch ? 'block' : 'none';
+    });
+  }
+
+  // Initial render of quick filters
+  renderQuickFilters();
+
+  // Search input only filters event cards, not quick filters
+  searchInput.addEventListener('input', () => {
+    applyFilters();
+  });
+
+  categorySelect.addEventListener('change', () => {
+    // When changing the dropdown, clear quick filters and chips
+    activeFilters.clear();
+    renderQuickFilters();
+    applyFilters();
+  });
+
+  // Personalization toggle logic
+  const personalizationToggle = document.getElementById('personalization');
+  personalizationToggle.addEventListener('change', () => {
+    alert(personalizationToggle.checked
+      ? 'Personalization enabled – Smart recommendations activated!'
+      : 'Personalization disabled – Showing general events.');
+  });
+
+  // Call on page load
+  loadEvents();
+});
+</script>
+</body>
+ 
+</html>
