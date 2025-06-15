@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forgot Password - RecoVibe</title>
+  <link rel="stylesheet" href="Forget.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    // TODO: Replace with your project's Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+      authDomain: "first-proj-a5fff.firebaseapp.com",
+      databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com",
+      projectId: "first-proj-a5fff",
+      storageBucket: "first-proj-a5fff.appspot.com",
+      messagingSenderId: "902560724938",
+      appId: "1:902560724938:web:1922c5b20fb5e851888133",
+      measurementId: "G-E1RCELQNR7"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <div class="logo-bar">
+    <img src="logo-light-transparent.png" alt="RecoVibe Logo" class="logo-img">
+  </div>
+  <div class="forgot-container">
+    <div class="forgot-card">
+      <div class="forgot-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" fill="#e3edfc"/>
+          <path d="M12 16v-4" stroke="#2563eb"/>
+          <circle cx="12" cy="8" r="1" fill="#2563eb"/>
+        </svg>
+      </div>
+      <h2>Forgot your password?</h2>
+      <p class="forgot-desc">Enter your email address and we’ll send you a link to reset your password.</p>
+      <form class="forgot-form" id="forgotForm">
+        <input type="email" id="emailInput" placeholder="Enter your email" required>
+        <button type="submit">Send Reset Link</button>
+      </form>
+      <div id="resetMessage" style="margin-top:10px;font-size:0.98rem;"></div>
+      <a href="index.html" class="back-link">← Back to Login</a>
+    </div>
+  </div>
+  <script>
+    document.getElementById('forgotForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value.trim();
+      const messageDiv = document.getElementById('resetMessage');
+      messageDiv.style.color = "#2563eb";
+      messageDiv.textContent = "Sending reset link...";
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(function() {
+          messageDiv.style.color = "#27ae60";
+          messageDiv.textContent = "A password reset link has been sent to your email.";
+        })
+        .catch(function(error) {
+          messageDiv.style.color = "#e74c3c";
+          if (error.code === "auth/user-not-found") {
+            messageDiv.textContent = "No account found with that email.";
+          } else if (error.code === "auth/invalid-email") {
+            messageDiv.textContent = "Please enter a valid email address.";
+          } else {
+            messageDiv.textContent = "Error: " + error.message;
+          }
+        });
+    });
+  </script>
+</body>
+</html>

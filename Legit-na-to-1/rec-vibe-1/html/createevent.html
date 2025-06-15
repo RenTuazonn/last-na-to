@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Event</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="createevent.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <!-- Back Button -->
+  <button type="button" id="backButton" class="back-button">Back</button>
+
+  <h2>Create Your Event</h2>
+  <form id="eventForm">
+    <div class="form-group">
+      <label for="eventName">Event Name</label>
+      <input type="text" id="eventName" name="eventName" placeholder="Enter event name..." required />
+    </div>
+
+    <div class="form-group">
+      <label for="eventDate">Event Date</label>
+      <input type="date" id="eventDate" name="eventDate" required />
+    </div>
+
+    <div class="form-group">
+      <label for="eventTime">Event Time</label>
+      <input type="time" id="eventTime" name="eventTime" required />
+    </div>
+
+    <div class="form-group">
+      <label for="eventLocation">Event Location</label>
+      <input type="text" id="eventLocation" name="eventLocation" placeholder="Enter event location..." required />
+    </div>
+
+    <div class="form-group">
+      <label for="eventCategory">Event Category</label>
+      <select id="eventCategory" name="eventCategory" required>
+        <option value="">-- Select Category --</option>
+        <option value="Esports">Esports</option>
+        <option value="Org">Org</option>
+        <option value="Social">Social</option>
+        <option value="Sports">Sports</option>
+        <option value="Academic">Academic</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="eventAttribute">Event Attribute</label>
+      <select id="eventAttribute" name="eventAttribute" required>
+        <option value="">-- Select Attribute --</option>
+        <option value="Large">Large</option>
+        <option value="Small">Small</option>
+        <option value="Family">Family</option>
+        <option value="Competitive">Competitive</option>
+        <option value="Casual">Casual</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="eventDescription">Event Description</label>
+      <textarea id="eventDescription" name="eventDescription" rows="4" placeholder="Describe your event..." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="eventSlots">Slots Available</label>
+      <select id="eventSlots" name="eventSlots" required>
+        <option value="">-- Select Slots --</option>
+        <option value="20">20</option>
+        <option value="40">40</option>
+        <option value="60">60</option>
+        <option value="80">80</option>
+        <option value="100">100</option>
+        <option value="120">120</option>
+        <option value="150">150</option>
+        <option value="200">200</option>
+        <option value="Unlimited">Unlimited</option>
+      </select>
+    </div>
+
+    <div class="button-group">
+      <button type="button" id="generateButton">Generate Title and Description</button>
+      <button type="button" id="submitButton">Create Event</button>
+    </div>
+  </form>
+  
+  <!-- Display generated title and description -->
+  <div id="generatedOutput">
+    <h3>Generated Title and Description:</h3>
+    <p><strong>Title:</strong> <span id="generatedTitle"></span></p>
+    <p><strong>Description:</strong> <span id="generatedDescription"></span></p>
+  </div>
+</div>
+
+<script src="gpt.js"></script>
+<script>
+  // Firebase initialization (classic script, not module)
+   const firebaseConfig = {
+            apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+            authDomain: "first-proj-a5fff.firebaseapp.com",
+            projectId: "first-proj-a5fff",
+            storageBucket: "first-proj-a5fff.appspot.com",
+            messagingSenderId: "902560724938",
+            appId: "1:902560724938:web:2956090fc8afb5ce888133",
+            measurementId: "G-0VNSBVGRK7",
+            databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com"
+        };
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const firestore = firebase.firestore();
+  const database = firebase.database();
+
+  // Handle event creation
+  document.getElementById('submitButton').addEventListener('click', async () => {
+    const eventName = document.getElementById('eventName').value;
+    const eventDate = document.getElementById('eventDate').value;
+    const eventTime = document.getElementById('eventTime').value;
+    const eventLocation = document.getElementById('eventLocation').value;
+    const eventCategory = document.getElementById('eventCategory').value;
+    const eventAttribute = document.getElementById('eventAttribute').value;
+    const eventDescription = document.getElementById('eventDescription').value;
+    const eventSlots = document.getElementById('eventSlots').value;
+
+    if (!eventName || !eventDate || !eventTime || !eventLocation || !eventCategory || !eventAttribute || !eventSlots || !eventDescription) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    try {
+      await firestore.collection("events").add({
+        name: eventName,
+        date: eventDate,
+        time: eventTime,
+        location: eventLocation,
+        category: eventCategory,
+        attribute: eventAttribute,
+        slots: eventSlots,
+        description: eventDescription,
+        createdAt: new Date()
+      });
+      alert('Event created successfully!');
+      document.getElementById('eventForm').reset();
+      window.location.href = "dashboardforadmin.html"; // Redirect after creation
+    } catch (error) {
+      alert('Error creating event: ' + error.message);
+    }
+  });
+
+  // Back button logic: Go back to previous page in history
+  document.getElementById('backButton').addEventListener('click', () => {
+    window.history.back();
+  });
+
+  // AI-powered event recommendation for Generate button
+  document.getElementById('generateButton').addEventListener('click', async () => {
+    const eventCategory = document.getElementById('eventCategory').value;
+    const eventAttribute = document.getElementById('eventAttribute').value;
+    const eventLocation = document.getElementById('eventLocation').value;
+    const eventDate = document.getElementById('eventDate').value;
+    const eventTime = document.getElementById('eventTime').value;
+
+    try {
+      if (typeof window.generateEventRecommendation !== "function") {
+        alert("AI recommendation service not available.");
+        return;
+      }
+      const { title, description } = await window.generateEventRecommendation({
+        category: eventCategory,
+        attribute: eventAttribute,
+        location: eventLocation,
+        date: eventDate,
+        time: eventTime
+      });
+
+      document.getElementById('generatedTitle').textContent = title || '';
+      document.getElementById('generatedDescription').textContent = description || '';
+      document.getElementById('eventName').value = title || '';
+      document.getElementById('eventDescription').value = description || '';
+    } catch (err) {
+      document.getElementById('generatedTitle').textContent = '';
+      document.getElementById('generatedDescription').textContent = '';
+      alert("Failed to generate recommendation: " + err.message);
+    }
+  });
+</script>
+</body>
+</html>

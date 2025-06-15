@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personalisation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="personalisation.css"/>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <h1 class="header">Personalisation</h1>
+
+    <!-- Profile Section -->
+    <div class="profile-section">
+      <div class="profile-picture" id="profile-container">
+        <img id="profile-uploaded" src="default-profile.png" alt="Profile" />
+        <label for="image-upload" class="camera-icon" title="Upload profile picture">
+          <img src="images/camera.png" alt="Upload" />
+        </label>
+        <input type="file" id="image-upload" accept="image/*" />
+      </div>
+      <p class="profile-info" id="profileInfo">@username | Organization | Bio</p>
+    </div>
+
+    <!-- Left Panel -->
+    <div class="side-box">
+      <!-- Optional content -->
+    </div>
+
+    <!-- Homepage Button -->
+    <button class="home-button" id="homeBtn">Go To Homepage</button>
+
+    <!-- First Box -->
+    <div class="box large-box">
+      <p>Personal Information</p>
+      <p>Password and Security</p>
+      <p>Accessibility and Display</p>
+      <p>Language and Regions</p>
+    </div>
+
+    <!-- Second Box - Themes -->
+    <div class="box theme-box">
+      <p>Themes</p>
+      <div class="theme-palette" id="palette">
+        <div class="theme-color" style="background:#2d6cdf;" data-color="#2d6cdf" title="Blue"></div>
+        <div class="theme-color" style="background:#e74c3c;" data-color="#e74c3c" title="Red"></div>
+        <div class="theme-color" style="background:#27ae60;" data-color="#27ae60" title="Green"></div>
+        <div class="theme-color" style="background:#f1c40f;" data-color="#f1c40f" title="Yellow"></div>
+        <div class="theme-color" style="background:#8e44ad;" data-color="#8e44ad" title="Purple"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Profile image upload preview
+    const imageUpload = document.getElementById('image-upload');
+    const profileImg = document.getElementById('profile-uploaded');
+    imageUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          profileImg.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Theme palette selection
+    const palette = document.getElementById('palette');
+    palette.addEventListener('click', function(e) {
+      if (e.target.classList.contains('theme-color')) {
+        document.querySelectorAll('.theme-color').forEach(el => el.classList.remove('selected'));
+        e.target.classList.add('selected');
+        // Optionally, apply theme color to page
+        document.documentElement.style.setProperty('--theme-color', e.target.dataset.color);
+      }
+    });
+
+    // Homepage button
+    document.getElementById('homeBtn').onclick = function() {
+      window.location.href = 'index.html';
+    };
+
+    // Optional: Set default profile image if not present
+    profileImg.onerror = function() {
+      profileImg.src = 'default-profile.png';
+    };
+  </script>
+</body>
+</html>

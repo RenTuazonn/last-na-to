@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RecoVibe</title>
+  <link rel="stylesheet" href="ai.css" />
+  <!-- Firebase scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+      authDomain: "first-proj-a5fff.firebaseapp.com",
+      databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com",
+      projectId: "first-proj-a5fff",
+      storageBucket: "first-proj-a5fff.appspot.com",
+      messagingSenderId: "902560724938",
+      appId: "1:902560724938:web:1922c5b20fb5e851888133",
+      measurementId: "G-E1RCELQNR7"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-container">
+      <img src="logo-light-transparent.png" alt="RecoVibe Logo" class="logo-img" />
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <!-- Notification icon with dropdown -->
+        <li class="notif-float">
+          <div class="notif-icon-modern" id="notifIcon" tabindex="0" aria-label="Notifications" role="button">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notif-badge-modern" id="notifCount" style="display:none;">1</span>
+          </div>
+          <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-dropdown-content" id="notifDropdownContent">
+              <p>No new notifications</p>
+            </div>
+          </div>
+        </li>
+        <!-- Navigation links -->
+        <li><a href="ai.html">Home</a></li>
+        <li><a href="calendar.html">Calendar</a></li>
+        <li><a href="user.html">Orgs</a></li>
+        <!-- Profile menu -->
+        <li class="profile-menu">
+          <div class="profile-icon" id="profileIcon">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="#333">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          <ul class="dropdown" id="profileDropdown">
+            <li><a href="personalisation.html">View Profile</a></li>
+            <li><a href="index.html" onclick="logout()">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="intro">
+      <h1>Find Your Campus Events</h1>
+      <p>Discover school activities, clubs, and events tailored to your interests. Never miss out on what's happening around campus!</p>
+    </section>
+
+    <section class="search-section">
+      <div class="search-header">
+        <div class="title">
+          <span class="icon">💡</span>
+          <h2>Smart Recommendations</h2>
+        </div>
+        <div class="toggle">
+          <label for="personalization">Personalization</label>
+          <input type="checkbox" id="personalization" checked />
+        </div>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="What kind of school events are you interested in?" />
+        <button>🔍</button>
+        
+      </div>
+
+      <div class="filters">
+  <span>Quick filters:</span>
+  <button class="filter-btn" data-category="Sports">Sports</button>
+  <button class="filter-btn" data-category="Academic">Academic</button>
+  <button class="filter-btn" data-category="Arts">Orgs</button>
+  <button class="filter-btn" data-category="Orgs">Clubs</button>
+  <button class="filter-btn" data-category="Social">Social</button>
+</div>
+
+    </section>
+
+    <section class="events-view">
+      <h3>Upcoming Campus Events</h3>
+      <div class="category-view">
+        <label for="category">View:</label>
+        <select id="category">
+          <option>All Categories</option>
+        </select>
+      </div>
+    </section>
+  </main>
+<section class="event-cards" id="eventCardsContainer">
+  <!-- Cards will be dynamically inserted here -->
+</section>
+<section class="featured-event" id="featuredEventSection">
+  <!-- Dynamic featured event will be loaded here -->
+</section>
+
+<section class="weekly-schedule">
+  <h3>This Week's Schedule</h3>
+  <div class="week-days">
+  <div class="day" data-day="Mon">Mon<br><span>8</span></div>
+  <div class="day" data-day="Tue">Tue<br><span>9</span></div>
+  <div class="day" data-day="Wed">Wed<br><span>10</span></div>
+  <div class="day active" data-day="Thu">Thu<br><span>11</span></div>
+  <div class="day" data-day="Fri">Fri<br><span>12</span></div>
+  <div class="day" data-day="Sat">Sat<br><span>13</span></div>
+  <div class="day" data-day="Sun">Sun<br><span>14</span></div>
+  <a href="calendar.html" class="calendar-link">View Full Calendar ➤</a>
+</div>
+  <div class="events">
+    <div id="noEventsMsg" style="display: none;">No events for today.</div>
+
+  <div class="event-item" data-day="Thu">
+      <span class="dot blue"></span>
+      <div class="event-info">
+        <div class="time-type">
+          <span class="time">8:00 AM – 10:00 AM</span>
+          <span class="badge academic">Academic</span>
+        </div>
+        <strong>Science Fair Preparation</strong>
+        <p>Science Building, Room 302</p>
+      </div>
+    </div>
+
+     <div class="event-item" data-day="Wed">
+      <span class="dot green"></span>
+      <div class="event-info">
+        <div class="time-type">
+          <span class="time">12:30 PM – 2:00 PM</span>
+          <span class="badge clubs">Orgs</span>
+        </div>
+        <strong>Debate Club Meeting</strong>
+        <p>Student Center, Meeting Room B</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Day mapping
+  const jsToDayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = jsToDayMap[new Date().getDay()];
+
+  const dayButtons = document.querySelectorAll('.week-days .day');
+  const eventItems = document.querySelectorAll('.event-item');
+  const noEventsMsg = document.getElementById('noEventsMsg');
+
+  function activateDay(dayLabel) {
+    let hasEvents = false;
+
+    dayButtons.forEach(btn => {
+      const isMatch = btn.getAttribute('data-day') === dayLabel;
+      btn.classList.toggle('active', isMatch);
+    });
+
+    eventItems.forEach(item => {
+      const match = item.getAttribute('data-day') === dayLabel;
+      item.style.display = match ? 'flex' : 'none';
+      if (match) hasEvents = true;
+    });
+
+    noEventsMsg.style.display = hasEvents ? 'none' : 'block';
+  }
+
+  // Activate today by default
+  activateDay(today);
+
+  // Add listeners to day buttons
+  dayButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedDay = button.getAttribute('data-day');
+      activateDay(selectedDay);
+    });
+  });
+
+  // --- EVENTS FETCHING LOGIC ---
+  async function loadEvents() {
+    const container = document.getElementById('eventCardsContainer');
+    container.innerHTML = '';
+    try {
+      // Fetch all events from Firestore, ordered by date
+      const snapshot = await firebase.firestore().collection('events').orderBy('date', 'asc').get();
+      if (snapshot.empty) {
+        container.innerHTML = '<p>No events found.</p>';
+        return;
+      }
+      // Build a list of unique categories for the filter dropdown
+      const categoriesSet = new Set();
+      snapshot.forEach(doc => {
+        const event = doc.data();
+        if (event.category) categoriesSet.add(event.category);
+      });
+      // Populate the category select dropdown
+      const categorySelect = document.getElementById('category');
+      categorySelect.innerHTML = '<option>All Categories</option>';
+      categoriesSet.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+
+      // Render event cards
+      for (const doc of snapshot.docs) {
+        const event = doc.data();
+        // Only display if both are approved
+        if (event.academicApproved === true && event.affairsApproved === true) {
+          let attending = event.attending || 0;
+          // Fallback: count RSVPs if attending is missing or zero
+          if (attending === 0) {
+            const rsvpsSnapshot = await doc.ref.collection('rsvps').get();
+            attending = rsvpsSnapshot.size;
+          }
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="category">${event.category || ''}</div>
+            <h4>${event.name || ''}</h4>
+            <p>📅 ${event.date || ''} • ${event.time || ''}</p>
+            <p>📍 ${event.location || ''}</p>
+            <p class="attending">${attending > 0 ? attending + ' attending' : 'No attendees yet'}</p>
+            <div class="card-actions">
+              <a href="" class="more-info-link">More Info</a>
+              <button class="rsvp-btn">RSVP</button>
+            </div>
+          `;
+          // Attach event data for modal
+          card.querySelector('.more-info-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('modalEventName').textContent = event.name || '';
+            document.getElementById('modalEventCategory').textContent = "Category: " + (event.category || '');
+            document.getElementById('modalEventDate').textContent = "Date: " + (event.date || '') + (event.time ? " • " + event.time : "");
+            document.getElementById('modalEventLocation').textContent = "Location: " + (event.location || '');
+            document.getElementById('modalEventAttending').textContent = attending > 0 ? (attending + " attending") : "No attendees yet";
+            document.getElementById('modalEventDescription').textContent = event.description || 'No description available.';
+            eventModal.style.display = 'flex';
+          });
+          // RSVP button logic for this card
+          card.querySelector('.rsvp-btn').addEventListener('click', async () => {
+            try {
+              const user = firebase.auth().currentUser;
+              if (!user) {
+                alert('Please log in to RSVP.');
+                return;
+              }
+              const eventRef = doc.ref;
+              const rsvpRef = eventRef.collection('rsvps').doc(user.uid);
+
+              const rsvpSnap = await rsvpRef.get();
+              if (rsvpSnap.exists) {
+                alert('You have already RSVP\'d for this event.');
+                return;
+              }
+
+              // Store RSVP in Firestore
+              await rsvpRef.set({
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                email: user.email
+              });
+              await eventRef.update({
+                attending: firebase.firestore.FieldValue.increment(1)
+              });
+
+              alert('RSVP successful! You have joined this event.');
+              loadEvents();
+            } catch (err) {
+              alert('RSVP error: ' + err.message);
+            }
+          });
+          container.appendChild(card);
+        }
+      }
+
+      // Re-apply filter logic after loading events
+      applyFilters();
+
+      // RSVP button logic for dynamically created buttons
+      container.querySelectorAll('.rsvp-btn').forEach((button, idx) => {
+        button.addEventListener('click', async () => {
+          try {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+              alert('Please log in to RSVP.');
+              return;
+            }
+            const eventDoc = snapshot.docs[idx];
+            if (!eventDoc) return;
+            const eventRef = eventDoc.ref;
+            const rsvpRef = eventRef.collection('rsvps').doc(user.uid);
+
+            const rsvpSnap = await rsvpRef.get();
+            if (rsvpSnap.exists) {
+              alert('You have already RSVP\'d for this event.');
+              return;
+            }
+
+            // Store RSVP in Firestore
+            await rsvpRef.set({
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              email: user.email
+            });
+            await eventRef.update({
+              attending: firebase.firestore.FieldValue.increment(1)
+            });
+
+            // Show confirmation only after successful RSVP
+            alert('RSVP successful! You have joined this event.');
+            loadEvents();
+          } catch (err) {
+            alert('RSVP error: ' + err.message);
+          }
+        });
+      });
+
+    } catch (err) {
+      container.innerHTML = `<p>Error loading events: ${err.message}</p>`;
+    }
+  }
+
+  // --- Filtering logic ---
+  let activeFilters = new Set();
+  const filterButtonsContainer = document.querySelector('.filters');
+  const initialFilters = [
+    { label: 'Sports', value: 'Sports' },
+    { label: 'Academic', value: 'Academic' },
+    { label: 'Orgs', value: 'Arts' },
+    { label: 'Clubs', value: 'Orgs' },
+    { label: 'Social', value: 'Social' }
+  ];
+  const searchInput = document.getElementById('searchInput');
+  const categorySelect = document.getElementById('category');
+
+  // Helper to render quick filter buttons and chips
+  function renderQuickFilters() {
+    // Remove all filter buttons and chips except the label
+    filterButtonsContainer.querySelectorAll('.filter-btn, .filter-chip').forEach(el => el.remove());
+
+    // Render chips for active filters (with deselect and animation)
+    initialFilters.forEach(f => {
+      if (activeFilters.has(f.value)) {
+        const chip = document.createElement('span');
+        chip.className = 'filter-chip filter-chip-active';
+        chip.textContent = f.label;
+        chip.setAttribute('data-category', f.value);
+        // Add deselect (x) button
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'chip-remove';
+        
+        removeBtn.addEventListener('click', () => {
+          // Animate chip out
+          chip.classList.add('chip-fade-out');
+          setTimeout(() => {
+            activeFilters.delete(f.value);
+            renderQuickFilters();
+            applyFilters();
+          }, 200); // match CSS transition duration
+        });
+        chip.appendChild(removeBtn);
+        filterButtonsContainer.appendChild(chip);
+      }
+    });
+
+    // Render filter buttons for non-active filters (always show all)
+    initialFilters.forEach(f => {
+      if (!activeFilters.has(f.value)) {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-category', f.value);
+        btn.textContent = f.label;
+        btn.addEventListener('click', () => {
+          activeFilters.add(f.value);
+          renderQuickFilters();
+          applyFilters();
+        });
+        filterButtonsContainer.appendChild(btn);
+      }
+    });
+  }
+
+  function applyFilters() {
+    const searchQuery = searchInput.value.toLowerCase();
+    const selectedCategory = categorySelect.value;
+    const cards = document.querySelectorAll('.event-cards .card');
+
+    cards.forEach(card => {
+      const category = card.querySelector('.category').textContent.trim();
+      const title = card.querySelector('h4').textContent.toLowerCase();
+
+      // Multi-filter logic: show if matches any active filter, or if none are active
+      const matchesQuickFilters =
+        activeFilters.size === 0 || activeFilters.has(category);
+
+      const matchesCategory =
+        selectedCategory === 'All Categories' || category === selectedCategory;
+
+      const matchesSearch = title.includes(searchQuery);
+
+      card.style.display =
+        matchesQuickFilters && matchesCategory && matchesSearch ? 'block' : 'none';
+    });
+  }
+
+  // Initial render of quick filters
+  renderQuickFilters();
+
+  // Search input only filters event cards, not quick filters
+  searchInput.addEventListener('input', () => {
+    applyFilters();
+  });
+
+  categorySelect.addEventListener('change', () => {
+    // When changing the dropdown, clear quick filters and chips
+    activeFilters.clear();
+    renderQuickFilters();
+    applyFilters();
+  });
+
+  // Personalization toggle logic
+  const personalizationToggle = document.getElementById('personalization');
+  personalizationToggle.addEventListener('change', () => {
+    alert(personalizationToggle.checked
+      ? 'Personalization enabled – Smart recommendations activated!'
+      : 'Personalization disabled – Showing general events.');
+  });
+
+  // Call on page load
+  loadEvents();
+});
+</script>
+<!-- Remove the <script type="module"> ... </script> block at the bottom -->
+
+<!-- Add this script at the end, before </body> -->
+<script>
+  // Fetch and display events for the table
+  async function loadEventsTable() {
+    const eventsTable = document.getElementById('eventsTableBody');
+    if (!eventsTable) return;
+    eventsTable.innerHTML = '';
+    const snapshot = await firebase.firestore().collection('events').get();
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      // Academic Head Status
+      let academicStatus = "Pending";
+      if (data.academicApproved === true) academicStatus = "Approved";
+      else if (data.academicApproved === false) academicStatus = "Rejected";
+      // Student Affairs Status
+      let affairsStatus = "Pending";
+      if (data.affairsApproved === true) affairsStatus = "Approved";
+      else if (data.affairsApproved === false) affairsStatus = "Rejected";
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${data.name}</td>
+        <td>${data.date}</td>
+        <td>${data.description}</td>
+        <td>${academicStatus}</td>
+        <td>${affairsStatus}</td>
+        <td>
+          ${affairsStatus === "Pending" ? `
+            <button data-id="${docSnap.id}" class="approveBtn">Approve</button>
+            <button data-id="${docSnap.id}" class="rejectBtn">Reject</button>
+          ` : ""}
+          ${(affairsStatus !== "Pending") ? `
+            <button data-id="${docSnap.id}" class="editBtn">Edit</button>
+          ` : ""}
+          ${(academicStatus === "Approved" && affairsStatus === "Approved") ? `
+            <button class="certificateBtn" 
+              data-name="${encodeURIComponent(data.name)}"
+              data-date="${encodeURIComponent(data.date)}"
+              data-approver="Admin">Generate Certificate</button>
+          ` : ""}
+        </td>
+      `;
+      eventsTable.appendChild(tr);
+    });
+  }
+
+  // Call this after DOMContentLoaded if you have a table with id="eventsTableBody"
+  document.addEventListener('DOMContentLoaded', () => {
+    loadEventsTable();
+  });
+</script>
+
+<!-- Add this modal markup just before the closing </body> tag -->
+<div id="eventModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-modal" id="closeModalBtn">&times;</span>
+    <h2 id="modalEventName"></h2>
+    <p id="modalEventCategory"></p>
+    <p id="modalEventDate"></p>
+    <p id="modalEventLocation"></p>
+    <p id="modalEventAttending"></p>
+    <p id="modalEventDescription"></p>
+    <div id="joinedEventsModalContent" style="margin-top:1rem;"></div>
+  </div>
+</div>
+
+<style>
+/* Simple modal styles */
+.modal {
+  position: fixed; z-index: 9999; left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+}
+.modal-content {
+  background: #fff; padding: 2rem; border-radius: 8px; min-width: 300px; max-width: 90vw;
+  position: relative;
+}
+.close-modal {
+  position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer;
+}
+</style>
+
+<script>
+// Modal logic
+const eventModal = document.getElementById('eventModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+closeModalBtn.onclick = () => eventModal.style.display = 'none';
+window.onclick = (e) => { if (e.target === eventModal) eventModal.style.display = 'none'; };
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ...existing code...
+
+  async function loadFeaturedEvent() {
+    const section = document.getElementById('featuredEventSection');
+    section.innerHTML = '<p>Loading featured event...</p>';
+    try {
+      // Get the event with the most "attending"
+      const snapshot = await firebase.firestore()
+        .collection('events')
+        .orderBy('attending', 'desc')
+        .limit(1)
+        .get();
+
+      if (snapshot.empty) {
+        section.innerHTML = '<p>No featured event found.</p>';
+        return;
+      }
+
+      const doc = snapshot.docs[0];
+      const event = doc.data();
+
+      section.innerHTML = `
+        <div class="event-details">
+          <span class="label">Campus-Wide Event</span>
+          <h2>${event.name || ''}</h2>
+          <p>${event.description || ''}</p>
+          <p>📅 ${event.date || ''}${event.time ? ' • ' + event.time : ""}</p>
+          <p>📍 ${event.location || ''}</p>
+          <div class="attendees">
+            <span class="count">${event.attending ? '+' + event.attending + ' attending' : ''}</span>
+          </div>
+          <button class="rsvp-btn" id="featuredRSVPBtn">RSVP Now</button>
+          <span class="tag">Featured</span>
+        </div>
+      `;
+
+      // RSVP logic for featured event
+      document.getElementById('featuredRSVPBtn').onclick = async () => {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          alert('Please log in to RSVP.');
+          return;
+        }
+        const rsvpRef = doc.ref.collection('rsvps').doc(user.uid);
+        const rsvpSnap = await rsvpRef.get();
+        if (rsvpSnap.exists) {
+          alert('You have already RSVP\'d for this event.');
+          return;
+        }
+        await rsvpRef.set({
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          email: user.email
+        });
+        await doc.ref.update({
+          attending: firebase.firestore.FieldValue.increment(1)
+        });
+        alert('RSVP successful! You have joined this event.');
+        loadFeaturedEvent(); // Refresh count
+      };
+    } catch (err) {
+      section.innerHTML = `<p>Error loading featured event: ${err.message}</p>`;
+    }
+  }
+
+  // Call after DOM loaded
+  loadFeaturedEvent();
+});
+</script>
+
+<!-- Add this where you want the top attendees to appear -->
+<section class="top-attendees" id="topAttendeesSection">
+  <!-- Top attendees will be loaded here -->
+</section>
+<script>
+// filepath: c:\Users\Rhodora\Last\last-na-to\Legit-na-to-1\rec-vibe-1\html\ai.html
+// ...existing code...
+
+async function loadTopAttendees() {
+  const section = document.getElementById('topAttendeesSection');
+  section.innerHTML = '<p>Loading top attendees...</p>';
+  try {
+    // Map of userId -> { count, email, approvals: [] }
+    const userCounts = {};
+
+    // Fetch all events
+    const eventsSnapshot = await firebase.firestore().collection('events').get();
+    for (const eventDoc of eventsSnapshot.docs) {
+      const eventData = eventDoc.data();
+      // Only count if both are approved (same as card display)
+      if (eventData.academicApproved === true && eventData.affairsApproved === true) {
+        const approvalStatus = "Academic: ✔️ | Affairs: ✔️";
+        const rsvpsSnapshot = await eventDoc.ref.collection('rsvps').get();
+        rsvpsSnapshot.forEach(rsvpDoc => {
+          const data = rsvpDoc.data();
+          const uid = rsvpDoc.id;
+          // Only count if RSVP is approved and email exists
+          if (!data.email || !data.email.trim()) return;
+          if (!data.approved) return; // Only show approved RSVPs
+          if (!userCounts[uid]) {
+            userCounts[uid] = { count: 0, email: data.email, approvals: [] };
+          }
+          userCounts[uid].count += 1;
+          userCounts[uid].approvals.push({
+            event: eventData.name || eventDoc.id,
+            approval: approvalStatus
+          });
+        });
+      }
+    };
+
+    // Convert to array and sort by count descending
+    const sorted = Object.entries(userCounts)
+      .map(([uid, info]) => ({ uid, ...info }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // Top 5
+
+    if (sorted.length === 0) {
+      section.innerHTML = '<p>No approved attendees found.</p>';
+      return;
+    }
+
+    section.innerHTML = `
+      <h3>Top Approved Attendees</h3>
+      <ol>
+        ${sorted.map(user => `)
+          <li>
+            <strong>${user.email}</strong>
+            <span style="color:#888;">(${user.count} events)</span>
+            <ul style="margin-top:0.25em;">
+              ${user.approvals.map(ev => `
+                <li>
+                  <span style="font-size:0.95em;">${ev.event} — ${ev.approval}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </li>
+        `).join('')}
+      </ol>
+    `;
+  } catch (err) {
+    section.innerHTML = `<p>Error loading attendees: ${err.message}</p>`;
+  }
+}
+
+
+// Call after DOM loaded
+document.addEventListener('DOMContentLoaded', loadTopAttendees);
+
+function updateNotifications() {
+  const notifCount = document.getElementById('notifCount');
+  const notifDropdownContent = document.getElementById('notifDropdownContent');
+
+  // Replace this with your actual notification fetching logic
+  const notifications = [
+    { message: "Event A was approved!", date: "2024-06-15" },
+    { message: "Event B was rejected.", date: "2024-06-14" }
+  ];
+
+  if (notifications.length > 0) {
+    notifCount.textContent = notifications.length;
+    notifCount.style.display = 'inline-block';
+    notifDropdownContent.innerHTML = notifications.map(n =>
+      `<div class="notif-item">
+        <span>${n.message}</span><br>
+        <small>${n.date}</small>
+      </div>`
+    ).join('');
+  } else {
+    notifCount.style.display = 'none';
+    notifDropdownContent.innerHTML = '<p>No new notifications</p>';
+  }
+}
+
+// Dropdown toggle
+document.getElementById('notifIcon').onclick = function(e) {
+  e.stopPropagation();
+  document.getElementById('notifDropdown').classList.toggle('show');
+};
+document.body.onclick = function() {
+  document.getElementById('notifDropdown').classList.remove('show');
+};
+
+// Initialize notifications on load
+updateNotifications();
+</script>
+</body>
+ 
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Events</title>
+    <style>
+        /* Styling for event display */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .event-item {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .event-item h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+        .event-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .back-button {
+            display: block;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Your Events</h2>
+
+        <!-- This will hold the event items dynamically -->
+        <div id="eventsList"></div>
+
+        <a href="index.html" class="back-button">Back to Home</a>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        import { getDatabase, ref, query as dbQuery, orderByChild, get } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        // Firebase configuration
+         const firebaseConfig = {
+            apiKey: "AIzaSyAvJKueNtBRrGFxXby-VRkOewdGEkiuGnQ",
+            authDomain: "first-proj-a5fff.firebaseapp.com",
+            projectId: "first-proj-a5fff",
+            storageBucket: "first-proj-a5fff.appspot.com",
+            messagingSenderId: "902560724938",
+            appId: "1:902560724938:web:2956090fc8afb5ce888133",
+            measurementId: "G-0VNSBVGRK7",
+            databaseURL: "https://first-proj-a5fff-default-rtdb.firebaseio.com"
+        };
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); // Firebase Authentication
+        const firestore = getFirestore(app); // Firestore
+        const database = getDatabase(app); // Realtime Database
+
+        // Check if the user is authenticated on page load
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                alert("You must be logged in to view your events.");
+                window.location.href = "login.html"; // Redirect to login page if not logged in
+                return;
+            }
+
+            // Fetch events from Firestore
+            const q = query(collection(firestore, "events"), where("userId", "==", user.uid));
+            const querySnapshot = await getDocs(q);
+
+            // If no events are found in Firestore, fetch from Realtime Database
+            if (querySnapshot.empty) {
+                getEventsFromRealtimeDatabase(user.uid);
+            } else {
+                // Display events from Firestore
+                displayEvents(querySnapshot);
+            }
+        });
+
+        // Function to display events
+        function displayEvents(querySnapshot) {
+            const eventsList = document.getElementById("eventsList");
+
+            querySnapshot.forEach((doc) => {
+                const eventData = doc.data();
+                const eventElement = document.createElement("div");
+                eventElement.classList.add("event-item");
+                eventElement.innerHTML = `
+                    <h3>${eventData.eventName}</h3>
+                    <p><strong>Date:</strong> ${eventData.eventDate}</p>
+                    <p><strong>Time:</strong> ${eventData.eventTime}</p>
+                    <p><strong>Location:</strong> ${eventData.eventLocation}</p>
+                    <p><strong>Description:</strong> ${eventData.eventDescription}</p>
+                `;
+                eventsList.appendChild(eventElement);
+            });
+        }
+
+        // Function to fetch events from Realtime Database if not found in Firestore
+        async function getEventsFromRealtimeDatabase(userId) {
+            const eventsRef = ref(database, 'events/' + userId);
+            const eventsSnapshot = await get(dbQuery(eventsRef, orderByChild('eventDate')));
+
+            const eventsList = document.getElementById("eventsList");
+
+            if (eventsSnapshot.exists()) {
+                eventsSnapshot.forEach((event) => {
+                    const eventData = event.val();
+                    const eventElement = document.createElement("div");
+                    eventElement.classList.add("event-item");
+                    eventElement.innerHTML = `
+                        <h3>${eventData.eventName}</h3>
+                        <p><strong>Date:</strong> ${eventData.eventDate}</p>
+                        <p><strong>Time:</strong> ${eventData.eventTime}</p>
+                        <p><strong>Location:</strong> ${eventData.eventLocation}</p>
+                        <p><strong>Description:</strong> ${eventData.eventDescription}</p>
+                    `;
+                    eventsList.appendChild(eventElement);
+                });
+            } else {
+                eventsList.innerHTML = "<p>No events found.</p>";
+            }
+        }
+    </script>
+</body>
+</html>

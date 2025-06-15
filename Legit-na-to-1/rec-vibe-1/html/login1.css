@@ -1,0 +1,225 @@
+/* Global Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #add8e6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.profile-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 32px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.profile-icon:hover {
+  color: #000;
+}
+
+#profile-frame {
+  padding: 40px;
+  text-align: center;
+}
+#profile-frame h2 {
+  font-size: 24px;
+}
+
+
+.main-container {
+  display: flex;
+  justify-content: space-between; /* Distribute space evenly between both sections */
+  align-items: center;
+  height: 100vh;
+  padding: 0 20px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.welcome-text {
+  flex: 1; /* Takes up 50% of the available space */
+  padding: 10px;
+  font-size: 1rem; /* Reduced font size for smaller text */
+  color: #333;
+  line-height: 1.6;
+  text-align: left;
+  margin-left: 100px; /* Added margin for spacing */
+  margin-right: 200px; /* Reduced margin for better spacing */
+}
+
+.login-box {
+  flex: 1; /* Takes up 50% of the available space */
+  background-color: #fff;
+  padding: 20px;
+  border: 2px solid #039be5;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensures the box takes full width of its container */
+  max-width: 400px; /* Limits the width of the login box */
+  margin-right: 300px; /* Adds space between the welcome text and login box */
+  margin: 0 auto; /* Center the login box */
+}
+
+.login-box h2 {
+  font-size: 20px;
+  color: #039be5;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-group input {
+  width: 88%;
+  padding: 10px 35px 10px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #aaa;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #333;
+}
+
+.login-button,
+.create-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.login-button {
+  background-color: #039be5;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #0288d1;
+}
+
+.create-button {
+  background-color: #f5b942;
+  color: black;
+}
+
+.create-button:hover {
+  background-color: #e0a732;
+}
+
+.forgot {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.forgot a {
+  color: blue;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.forgot a:hover {
+  text-decoration: underline;
+}
+
+.back-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  background: #f5b942;
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #f57f17;
+}
+
+.logo.small-logo {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 100px;
+  height: auto;
+  z-index: 10;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .welcome-text {
+    margin-right: 0;
+    margin-left: 0; /* Ensure no margin is left */
+    margin-bottom: 30px;
+    font-size: 0.9rem; /* Reduce font size for better mobile experience */
+    text-align: center; /* Center the text for smaller screens */
+  }
+
+  .login-box {
+    width: 90%;
+    margin-right: 0; /* Remove margin-right on smaller screens */
+    margin-left: auto; /* Center the login box */
+    margin-right: auto;
+  }
+
+  /* Make the login button and create account button adjust for mobile */
+  .login-button, .create-button {
+    font-size: 16px; /* Increase button font size for easier tap */
+    padding: 14px;
+  }
+
+  /* Small adjustments for better mobile-friendly input */
+  .form-group input {
+    font-size: 16px;
+    padding: 12px 15px;
+  }
+}
